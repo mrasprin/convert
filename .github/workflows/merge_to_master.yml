@@ -1,0 +1,32 @@
+name: Merge to Master
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+
+jobs:
+  convert_json_to_html:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'development'
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install jq
+      run: sudo apt-get install jq
+
+    - name: Convert JSON to HTML
+      run: |
+        chmod +x json_to_html.sh
+        ./json_to_html.sh input.json output.html
+        git config --global user.email "ashiqachu1@gmail.com"
+        git config --global user.name "mrasprin"
+        git checkout master
+        git add -f output.html
+        git commit -m "Add generated HTML file"
+        git push
+
